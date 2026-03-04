@@ -37,13 +37,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     permissions:
-      id-token: write # Required for OIDC auth with AWS
+      id-token: write
       contents: read
 
     steps:
       - uses: actions/checkout@v4
 
-      # Use OIDC instead of long-lived AWS keys — more secure
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -72,13 +71,12 @@ jobs:
           aws eks update-kubeconfig \
             --region ${{ env.AWS_REGION }} \
             --name ${{ env.EKS_CLUSTER }}
-            kubectl get nodes
+          kubectl get nodes
 
       - name: Apply K8s manifests (namespace, secrets, etc.)
         run: |
           kubectl apply -f k8s/namespace.yaml
 
-          # Inject real secrets from GitHub Secrets into K8s secret
           kubectl create secret generic backend-secrets \
             --namespace=resumeai \
             --from-literal=MONGO_URI="${{ secrets.MONGO_URI }}" \
@@ -97,7 +95,15 @@ jobs:
             --from-literal=CHROMA_URL="http://chromadb-service:8000" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-          kubectl apply -f k8s/chromadb/
+          kubectl apply -f k8s/chromadb/pvc.yaml
+          kubectl apply -f k8s/chromadb/deployment.yaml
+          kubectl apply -f k8s/chromadb/service.yaml
+
+          kubectl rollout status deployment/chromadb \
+            --namespace=resumeai \
+            --timeout=120s
+
+          kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           kubectl apply -f k8s/hpa.yaml
           kubectl apply -f k8s/ingress.yaml
@@ -111,7 +117,6 @@ jobs:
             backend=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             --namespace=resumeai
 
-          # Wait for rollout to complete — fails the pipeline if deploy fails
           kubectl rollout status deployment/backend \
             --namespace=resumeai \
             --timeout=300s
