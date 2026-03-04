@@ -72,6 +72,7 @@ jobs:
           aws eks update-kubeconfig \
             --region ${{ env.AWS_REGION }} \
             --name ${{ env.EKS_CLUSTER }}
+            kubectl get nodes
 
       - name: Apply K8s manifests (namespace, secrets, etc.)
         run: |
