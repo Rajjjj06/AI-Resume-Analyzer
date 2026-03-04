@@ -76,7 +76,6 @@ jobs:
       - name: Apply K8s manifests (namespace, secrets, etc.)
         run: |
           kubectl apply -f k8s/namespace.yaml
-          kubectl apply -f k8s/storageclass.yaml 
 
           kubectl create secret generic backend-secrets \
             --namespace=resumeai \
@@ -96,7 +95,6 @@ jobs:
             --from-literal=CHROMA_URL="http://chromadb-service:8000" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-          kubectl apply -f k8s/chromadb/pvc.yaml
           kubectl apply -f k8s/chromadb/deployment.yaml
           kubectl apply -f k8s/chromadb/service.yaml
 

@@ -39,5 +39,6 @@ spec:
               memory: "1Gi"
       volumes:
         - name: chroma-storage
-          persistentVolumeClaim:
-            claimName: chromadb-pvc
+          hostPath:
+            path: /data/chromadb
+            type: DirectoryOrCreate
