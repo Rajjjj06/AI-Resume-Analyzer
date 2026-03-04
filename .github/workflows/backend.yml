@@ -11,6 +11,7 @@ on:
 env:
   AWS_REGION: ap-south-2
   ECR_REPOSITORY: resumeai-backend
+  ECR_REPOSITORY_CHROMA: resumeai-chromadb
   EKS_CLUSTER: resumeai-cluster
 
 jobs:
@@ -65,6 +66,14 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Mirror ChromaDB image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker pull chromadb/chroma:latest
+          docker tag chromadb/chroma:latest $ECR_REGISTRY/$ECR_REPOSITORY_CHROMA:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_CHROMA:latest
 
       - name: Update kubeconfig for EKS
         run: |
