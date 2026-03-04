@@ -65,14 +65,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     await signOut(auth);
     const result = await signInWithPopup(auth, provider);
     const token = await result.user.getIdToken();
-    console.log("Google token:", token);
     const response = await login(token);
-    console.log("Login response:", response.data);
     const backendToken = response.data.data?.token;
     if (backendToken) {
       localStorage.setItem("token", backendToken);
       const userResponse = await getUser();
-      console.log("User data:", userResponse.data);
       setUser(userResponse.data.user);
     }
   };

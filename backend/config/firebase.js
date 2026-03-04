@@ -13,6 +13,5 @@ admin.initializeApp({
 });
 
 logger.info("Firebase Admin initialized");
-console.log("Firebase Admin initialized");
 
 export default admin;

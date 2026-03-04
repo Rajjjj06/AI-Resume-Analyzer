@@ -70,7 +70,6 @@ export const verifyFirebaseToken = async (req, res) => {
       });
     }
     logger.info(`User authenticated: ${email}`);
-    console.log(`User authenticated: ${email}`);
   } catch (error) {
     logger.error("Error verifying Firebase token:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -80,7 +79,6 @@ export const verifyFirebaseToken = async (req, res) => {
 export const getUser = async (req, res) => {
   try {
     logger.info(`Fetching user data for user: ${req.user.email}`);
-    console.log(`Fetching user data for user: ${req.user.email}`);
     const plan = req.user.subscription?.plan || "free";
     const limits = PLANS[plan]?.limits || PLANS.free.limits;
     res.status(200).json({
