@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chromadb
+  namespace: resumeai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chromadb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: chromadb
+    spec:
+      nodeSelector:
+        eks.amazonaws.com/compute-type: auto
+      containers:
+        - name: chromadb
+          image: chromadb/chroma:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: IS_PERSISTENT
+              value: "TRUE"
+            - name: ANONYMIZED_TELEMETRY
+              value: "FALSE"
+          volumeMounts:
+            - name: chroma-storage
+              mountPath: /chroma/chroma
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+      volumes:
+        - name: chroma-storage
+          persistentVolumeClaim:
+            claimName: chromadb-pvc
