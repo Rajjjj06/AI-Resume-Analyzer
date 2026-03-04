@@ -29,9 +29,12 @@ jobs:
         run: npm test --if-present
         working-directory: frontend
 
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
       - name: Deploy to Vercel
         run: |
-          npx vercel --prod \
+          vercel --prod \
             --token=${{ secrets.VERCEL_TOKEN }} \
             --yes
         working-directory: frontend
