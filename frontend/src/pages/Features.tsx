@@ -87,6 +87,7 @@ export default function Features() {
           Everything you need to optimize resumes, match candidates, and
           streamline your hiring process and improve at the same time.
         </p>
+        console.log("Features page loaded");
       </div>
 
       <div className="grid sm:grid-cols-2 gap-6">
