@@ -1,44 +1,54 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chromadb
+  name: backend
   namespace: resumeai
+  labels:
+    app: backend
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
-      app: chromadb
+      app: backend
   strategy:
-    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
-        app: chromadb
+        app: backend
     spec:
-      nodeSelector:
-        eks.amazonaws.com/compute-type: auto
       containers:
-        - name: chromadb
-          image: 776312084376.dkr.ecr.ap-south-2.amazonaws.com/resumeai-chromadb:latest
+        - name: backend
+          image: 776312084376.dkr.ecr.ap-south-2.amazonaws.com/resumeai-backend:latest
           ports:
-            - containerPort: 8000
+            - containerPort: 5000
+          envFrom:
+            - secretRef:
+                name: backend-secrets
           env:
-            - name: IS_PERSISTENT
-              value: "TRUE"
-            - name: ANONYMIZED_TELEMETRY
-              value: "FALSE"
-          volumeMounts:
-            - name: chroma-storage
-              mountPath: /chroma/chroma
+            - name: PORT
+              value: "5000"
+            - name: NODE_ENV
+              value: "production"
           resources:
             requests:
               cpu: "250m"
-              memory: "512Mi"
+              memory: "256Mi"
             limits:
               cpu: "500m"
-              memory: "1Gi"
-      volumes:
-        - name: chroma-storage
-          hostPath:
-            path: /data/chromadb
-            type: DirectoryOrCreate
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
