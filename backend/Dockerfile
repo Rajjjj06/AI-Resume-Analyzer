@@ -5,16 +5,15 @@ RUN npm ci --only=production
 
 FROM node:20-alpine AS production
 WORKDIR /app
+
 RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 
 COPY --chown=nodejs:nodejs . .
-
 COPY --chown=nodejs:nodejs --from=builder /app/node_modules ./node_modules
 
+RUN rm -rf .env tests/
+
 RUN mkdir -p logs && chown nodejs:nodejs logs
-
-RUN rm -rf .env logs/ tests/
-
 
 USER nodejs
 EXPOSE 5000
