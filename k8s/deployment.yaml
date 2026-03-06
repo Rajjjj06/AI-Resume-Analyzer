@@ -14,7 +14,7 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
-      maxUnavailable: 0 # Zero-downtime deploys
+      maxUnavailable: 1
   template:
     metadata:
       labels:
