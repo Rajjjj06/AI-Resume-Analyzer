@@ -128,10 +128,6 @@ jobs:
             backend=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG \
             --namespace=resumeai
 
-          kubectl rollout status deployment/backend \
-            --namespace=resumeai \
-            --timeout=300s
-
       - name: Verify deployment
         run: |
           kubectl get pods -n resumeai
