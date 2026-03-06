@@ -1,18 +1,17 @@
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
 
-FROM node:20-alpine AS production
+FROM node:20-slim AS production
 WORKDIR /app
 
-RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+RUN groupadd -g 1001 nodejs && useradd -u 1001 -g nodejs nodejs
 
 COPY --chown=nodejs:nodejs . .
 COPY --chown=nodejs:nodejs --from=builder /app/node_modules ./node_modules
 
 RUN rm -rf .env tests/
-
 RUN mkdir -p logs && chown nodejs:nodejs logs
 
 USER nodejs
