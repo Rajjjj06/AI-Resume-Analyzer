@@ -86,6 +86,7 @@ jobs:
         run: |
           kubectl scale deployment backend --replicas=0 -n resumeai || true
           kubectl scale deployment chromadb --replicas=0 -n resumeai || true
+          kubectl patch deployment backend -n resumeai -p '{"spec":{"replicas":1}}' || true
           kubectl delete pods --all -n resumeai --force --grace-period=0 || true
           sleep 10
 
