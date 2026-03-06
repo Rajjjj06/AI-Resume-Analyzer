@@ -10,6 +10,9 @@ RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 COPY --chown=nodejs:nodejs . .
 
 COPY --chown=nodejs:nodejs --from=builder /app/node_modules ./node_modules
+
+RUN mkdir -p logs && chown nodejs:nodejs logs
+
 RUN rm -rf .env logs/ tests/
 
 
