@@ -111,8 +111,11 @@ jobs:
             --from-literal=CHROMA_URL="http://chromadb-service:8000" \
             --dry-run=client -o yaml | kubectl apply -f -
 
+          kubectl apply -f k8s/chromadb/deployment.yaml
+          kubectl apply -f k8s/chromadb/service.yaml
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
+          kubectl apply -f k8s/hpa.yaml
           kubectl apply -f k8s/ingress.yaml
 
       - name: Deploy new image to EKS
