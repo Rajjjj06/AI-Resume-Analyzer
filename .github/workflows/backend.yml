@@ -82,6 +82,13 @@ jobs:
             --name ${{ env.EKS_CLUSTER }}
           kubectl get nodes
 
+      - name: Clean up old pods
+        run: |
+          kubectl scale deployment backend --replicas=0 -n resumeai || true
+          kubectl scale deployment chromadb --replicas=0 -n resumeai || true
+          kubectl delete pods --all -n resumeai --force --grace-period=0 || true
+          sleep 10
+
       - name: Apply K8s manifests
         run: |
           kubectl apply -f k8s/namespace.yaml
@@ -107,13 +114,6 @@ jobs:
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           kubectl apply -f k8s/ingress.yaml
-
-      - name: Clean up old pods
-        run: |
-          kubectl scale deployment backend --replicas=0 -n resumeai || true
-          kubectl scale deployment chromadb --replicas=0 -n resumeai || true
-          kubectl delete pods --all -n resumeai --force --grace-period=0 || true
-          sleep 10
 
       - name: Deploy new image to EKS
         env:
